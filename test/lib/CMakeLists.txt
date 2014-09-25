@@ -24,7 +24,10 @@ IF(Boost_FOUND)
 ENDIF(Boost_FOUND) 
 #----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(Boost COMPONENTS serialization REQUIRED)
-#----------------------------------------------------------------------------------------------------------
+
+IF(Boost_FOUND)
+    MESSAGE (STATUS "Found Boost Serialization ${Boost_VERSION} -- ${Boost_LIBRARIES} -- ${Boost_INCLUDE_DIRS}")
+ENDIF(Boost_FOUND) 
 
 #----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(PythonInterp 2.4)
@@ -46,8 +49,7 @@ ENDIF(PYTHONLIBS_FOUND)
 IF( CPPUNIT_FOUND  )
     INCLUDE_DIRECTORIES("../../HrlNeuralAnalysis"
                         "../AnalysisData"
-                        "../"
-                        "."
+                        ${CMAKE_SOURCE_DIR}
                         ${Boost_INCLUDE_DIRS}
                         ${Boost_PYTHON_INCLUDE}
                         ${PYTHON_INCLUDE_PATH})

@@ -46,6 +46,8 @@
 #include <HrlNeuralAnalysisVoltage.h>
 #include <NeuronParams.h>
 #include <HrlAnalysisUtilities.h>
+#include <defines.h>
+
 
 using namespace boost::python;
 using namespace hrlAnalysis;

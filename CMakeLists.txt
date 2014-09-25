@@ -28,6 +28,11 @@ IF(Boost_FOUND)
 ENDIF(Boost_FOUND) 
 #----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(Boost COMPONENTS serialization REQUIRED)
+
+IF(Boost_FOUND)
+    MESSAGE (STATUS "Found Boost Serialization ${Boost_VERSION} -- ${Boost_LIBRARIES} -- ${Boost_INCLUDE_DIRS}")
+ENDIF(Boost_FOUND) 
+
 #----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(PythonInterp 2.4)
 FIND_PACKAGE(PythonLibs 2.4)
@@ -51,13 +56,12 @@ IF(Boost_FOUND)
     AUX_SOURCE_DIRECTORY("HrlNetworkAnalysis" HrlNetworkAnalysis)
     AUX_SOURCE_DIRECTORY("HrlNeuralAnalysis" HrlNeuralAnalysis)
         
-    INCLUDE_DIRECTORIES("stlPythonWrapper"
+    INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}
                         "HrlNeuralAnalysis"
                         "HrlNetworkAnalysis"
                         ${Boost_PYTHON_INCLUDE}
                         ${Boost_INCLUDE_DIRS}
                         ${PYTHON_INCLUDE_PATH}
-                        "."
                         )
 
     ADD_LIBRARY(HrlAnalysis SHARED "HrlAnalysis.cpp"

@@ -33,6 +33,8 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
+#include <defines.h>
+
 #if INCLUDE_SERIALIZATION
 namespace boost {
 namespace serialization {

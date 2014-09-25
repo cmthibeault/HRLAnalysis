@@ -30,7 +30,7 @@
 #ifndef HRLNEURALANALYSIS_H
 #define HRLNEURALANALYSIS_H
 
-#define INCLUDE_SERIALIZATION	false
+#include <defines.h>
 
 #if INCLUDE_SERIALIZATION
 #include <boost/serialization/vector.hpp>

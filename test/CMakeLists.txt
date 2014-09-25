@@ -16,8 +16,8 @@ MESSAGE( "CPPUNIT_INCLUDE_DIRS : ${CPPUNIT_INCLUDE_DIRS}" )
 MESSAGE( "CPPUNIT_LIBRARY_DIRS : ${CPPUNIT_LIBRARY_DIRS}" )
 MESSAGE( "CPPUNIT_LIBRARIES : ${CPPUNIT_LIBRARIES}" )
 
-FIND_PACKAGE(Boost COMPONENTS serialization REQUIRED)
 FIND_PACKAGE(Boost REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS serialization REQUIRED)
 
 IF(Boost_FOUND)
     MESSAGE (STATUS "Found Boost ${Boost_VERSION} -- ${Boost_LIBRARIES} -- ${Boost_INCLUDE_DIRS}")
@@ -28,7 +28,7 @@ IF( CPPUNIT_FOUND  )
                         "SpikeAnalysisAccess"
                         "AnalysisTest"
                         "AnalysisData"
-                        "."
+                        ${CMAKE_SOURCE_DIR}
                         ${CPPUNIT_LIBRARIES}
                         ${Boost_INCLUDE_DIRS})
 
