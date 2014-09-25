@@ -12,9 +12,21 @@ MESSAGE( "CPPUNIT_INCLUDE_DIRS : ${CPPUNIT_INCLUDE_DIRS}" )
 MESSAGE( "CPPUNIT_LIBRARY_DIRS : ${CPPUNIT_LIBRARY_DIRS}" )
 MESSAGE( "CPPUNIT_LIBRARIES : ${CPPUNIT_LIBRARIES}" )
 
-# Make sure the Boost Library is installed
+#----------------------------------------------------------------------------------------------------------
+# Make sure the Boost Libraries are installed
+#----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(Boost COMPONENTS python REQUIRED)
+SET(Boost_PYTHON_INCLUDE ${Boost_INCLUDE_DIRS})
+SET(Boost_PYTHON_LIBRARIES ${Boost_LIBRARIES})
+
+IF(Boost_FOUND)
+    MESSAGE (STATUS "Found Boost Python ${Boost_VERSION} -- ${Boost_LIBRARIES} -- ${Boost_INCLUDE_DIRS}")
+ENDIF(Boost_FOUND) 
+#----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(Boost COMPONENTS serialization REQUIRED)
+#----------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(PythonInterp 2.4)
 FIND_PACKAGE(PythonLibs 2.4)
 
@@ -29,17 +41,15 @@ IF(PYTHONLIBS_FOUND)
 ELSE(PYTHONLIBS_FOUND)
     MESSAGE (STATUS "Could not find Python Libs!")
 ENDIF(PYTHONLIBS_FOUND)
-
-IF(Boost_FOUND)
-    MESSAGE (STATUS "Found Boost ${Boost_VERSION} -- ${Boost_LIBRARIES} -- ${Boost_INCLUDE_DIRS}")
-ENDIF(Boost_FOUND)       
+#----------------------------------------------------------------------------------------------------------
 
 IF( CPPUNIT_FOUND  )
     INCLUDE_DIRECTORIES("../../HrlNeuralAnalysis"
                         "../AnalysisData"
-                        "."
                         "../"
+                        "."
                         ${Boost_INCLUDE_DIRS}
+                        ${Boost_PYTHON_INCLUDE}
                         ${PYTHON_INCLUDE_PATH})
 
     ADD_LIBRARY(HrlAnalysisData SHARED "TestLibrary.cpp"
@@ -53,7 +63,7 @@ IF( CPPUNIT_FOUND  )
     SET(CFLAGS " -fPIC ")
 
     # Set the libraries that need to be linked
-    TARGET_LINK_LIBRARIES(HrlAnalysisData stdc++ ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+    TARGET_LINK_LIBRARIES(HrlAnalysisData stdc++ ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${Boost_PYTHON_LIBRARIES})
     SET_TARGET_PROPERTIES(HrlAnalysisData PROPERTIES LINKER_LANGUAGE CXX)
 
 ENDIF(CPPUNIT_FOUND)

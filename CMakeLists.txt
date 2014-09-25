@@ -16,9 +16,19 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 ADD_CUSTOM_TARGET(uninstall
                   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
-# Make sure the Boost Library is installed
+#----------------------------------------------------------------------------------------------------------
+# Make sure the Boost Libraries are installed
+#----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(Boost COMPONENTS python REQUIRED)
+SET(Boost_PYTHON_INCLUDE ${Boost_INCLUDE_DIRS})
+SET(Boost_PYTHON_LIBRARIES ${Boost_LIBRARIES})
+
+IF(Boost_FOUND)
+    MESSAGE (STATUS "Found Boost Python ${Boost_VERSION} -- ${Boost_LIBRARIES} -- ${Boost_INCLUDE_DIRS}")
+ENDIF(Boost_FOUND) 
+#----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(Boost COMPONENTS serialization REQUIRED)
+#----------------------------------------------------------------------------------------------------------
 FIND_PACKAGE(PythonInterp 2.4)
 FIND_PACKAGE(PythonLibs 2.4)
 
@@ -33,6 +43,7 @@ IF(PYTHONLIBS_FOUND)
 ELSE(PYTHONLIBS_FOUND)
     MESSAGE (STATUS "Could not find Python Libs!")
 ENDIF(PYTHONLIBS_FOUND)
+#----------------------------------------------------------------------------------------------------------
 
 IF(Boost_FOUND)
 
@@ -43,9 +54,11 @@ IF(Boost_FOUND)
     INCLUDE_DIRECTORIES("stlPythonWrapper"
                         "HrlNeuralAnalysis"
                         "HrlNetworkAnalysis"
+                        ${Boost_PYTHON_INCLUDE}
                         ${Boost_INCLUDE_DIRS}
                         ${PYTHON_INCLUDE_PATH}
-                        ".")
+                        "."
+                        )
 
     ADD_LIBRARY(HrlAnalysis SHARED "HrlAnalysis.cpp"
                            ${stlPythonWrapper}
@@ -56,7 +69,7 @@ IF(Boost_FOUND)
     SET(CMAKE_BUILD_TYPE Release)
 
     # Set the libraries that need to be linked
-    TARGET_LINK_LIBRARIES(HrlAnalysis stdc++ ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+    TARGET_LINK_LIBRARIES(HrlAnalysis stdc++ ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${Boost_PYTHON_LIBRARIES})
     SET_TARGET_PROPERTIES(HrlAnalysis PROPERTIES LINKER_LANGUAGE CXX)
 
 ELSE(Boost_FOUND)
