@@ -33,13 +33,13 @@ using namespace hrlAnalysis;
 using namespace std;
 
 HrlNeuralAnalysis::HrlNeuralAnalysis():
-									spikeActivity_(new vector< pair<int,int> >),
-									cellActivity_(new vector< vector<int> >),
+									spikeActivity_(new vector< pair<IndexType,int> >),
+									cellActivity_(new vector< vector<IndexType> >),
 									paramsIn_(new NeuronParams()), emptyTrainSynchVal(0.0) {}
 
-HrlNeuralAnalysis::HrlNeuralAnalysis(int startTimeIn, int endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames):
-									spikeActivity_(new vector< pair<int,int> >),
-									cellActivity_(new vector< vector<int> >),
+HrlNeuralAnalysis::HrlNeuralAnalysis(IndexType startTimeIn, IndexType endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames):
+									spikeActivity_(new vector< pair<IndexType,int> >),
+									cellActivity_(new vector< vector<IndexType> >),
 									paramsIn_(new NeuronParams(startTimeIn, endTimeIn, startIdxIn, endIdxIn, fileNames)), emptyTrainSynchVal(0.0) {
 	/*
 	if(endTimeIn < startTimeIn)
@@ -67,15 +67,15 @@ void HrlNeuralAnalysis::load(std::string filename) {
 #endif
 
 void HrlNeuralAnalysis::dumpSpikeActivity() {
-    for (vector<std::pair<int,int> >::iterator spikeIt = spikeActivity_->begin(); spikeIt!=spikeActivity_->end(); ++spikeIt) {
+    for (vector<std::pair<IndexType,int> >::iterator spikeIt = spikeActivity_->begin(); spikeIt!=spikeActivity_->end(); ++spikeIt) {
         cout << "\t\t" << (*spikeIt).first << "\t" << (*spikeIt).second << endl;
     }
 }
 
 void HrlNeuralAnalysis::dumpCellActivity() {
     int count = 0;
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_) {
-        BOOST_FOREACH( int spike, spikes) {
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_) {
+        BOOST_FOREACH( IndexType spike, spikes) {
             cout << spike << endl;
         }
     }
@@ -106,7 +106,7 @@ double HrlNeuralAnalysis::calcSPIKEDistanceAvg(SynchronyInfoPtr synchPtr) {
 
 double HrlNeuralAnalysis::calcSPIKEDistance(SynchronyInfoPtr synchPtr) {
     double spikeDistance = 0;
-    double h = (paramsIn_->endTime - paramsIn_->startTime) / (paramsIn_->sampleFreq * synchPtr->S.size());
+    double h = (paramsIn_->endTime - paramsIn_->startTime) / (paramsIn_->units * synchPtr->S.size());
     // First element
     spikeDistance = synchPtr->S.front();
     for(std::vector<double>::iterator itrS = synchPtr->S.begin() + 1; itrS < synchPtr->S.end()-1; itrS+=2) {
@@ -121,7 +121,7 @@ double HrlNeuralAnalysis::calcSPIKEDistance(SynchronyInfoPtr synchPtr) {
 }
 
 // Get pairwise synchrony measures
-void HrlNeuralAnalysis::calcPairSynchronywSpikes(vector<int> *spikeTrain1, vector<int> *spikeTrain2, vector<double> *S) {
+void HrlNeuralAnalysis::calcPairSynchronywSpikes(vector<IndexType> *spikeTrain1, vector<IndexType> *spikeTrain2, vector<double> *S) {
 
     if ( spikeTrain1->size() > 0 && spikeTrain2->size() > 0 ) {
         S->reserve(paramsIn_->endTime - paramsIn_->startTime);
@@ -145,8 +145,8 @@ void HrlNeuralAnalysis::calcPairSynchronywSpikes(vector<int> *spikeTrain1, vecto
 }
 
 void HrlNeuralAnalysis::calcPairSynchrony(int idxCell1, int idxCell2, vector<double> *S) {
-    vector<int> *spikeTrain1 = &(cellActivity_->at(idxCell1));
-    vector<int> *spikeTrain2 = &(cellActivity_->at(idxCell2));
+    vector<IndexType> *spikeTrain1 = &(cellActivity_->at(idxCell1));
+    vector<IndexType> *spikeTrain2 = &(cellActivity_->at(idxCell2));
     calcPairSynchronywSpikes(spikeTrain1,spikeTrain2,S);
 }
 
@@ -159,12 +159,12 @@ SynchronyInfoPtr HrlNeuralAnalysis::getPairSynchrony(int idxCell1, int idxCell2)
 
 void HrlNeuralAnalysis::calcPopulationSynchrony(vector<double> *S) {
 
-    int N = (paramsIn_->endTime - paramsIn_->startTime);
+	IndexType N = (paramsIn_->endTime - paramsIn_->startTime);
     S->clear();
     S->resize(N,0);
 
-    for(std::vector< std::vector<int> >::iterator itrN = cellActivity_->begin(); itrN < cellActivity_->end(); itrN++) {
-        for(std::vector< std::vector<int> >::iterator itrM = itrN+1; itrM < cellActivity_->end(); itrM++) {
+    for(std::vector< std::vector<IndexType> >::iterator itrN = cellActivity_->begin(); itrN < cellActivity_->end(); itrN++) {
+        for(std::vector< std::vector<IndexType> >::iterator itrM = itrN+1; itrM < cellActivity_->end(); itrM++) {
             vector<double> tempS;
             calcPairSynchronywSpikes(&(*itrN),&(*itrM),&tempS);
             for(int i = 0; i < tempS.size(); i++){
@@ -186,7 +186,7 @@ SynchronyInfoPtr HrlNeuralAnalysis::getPopulationSynchrony() {
     return synchronyInfo;
 }
 
-CorrelationInfoPtr HrlNeuralAnalysis::getAllPairsPearsons(int windowSize) {
+CorrelationInfoPtr HrlNeuralAnalysis::getAllPairsPearsons(IndexType windowSize) {
 	CorrelationInfoPtr correlationInfo(new CorrelationInfo());
 	checkDataStructures();
 	int numCells = paramsIn_->endIdx - paramsIn_->startIdx + 1;
@@ -233,11 +233,11 @@ CorrelationInfoPtr HrlNeuralAnalysis::getAllPairsPearsons(int windowSize) {
 	return correlationInfo;
 }
 
-void HrlNeuralAnalysis::calcBinnedCellSpikeCounts(int idx, int windowSize, vector<int> &spikeCounts) {
-	int numBins = (paramsIn_->endTime - paramsIn_->startTime)/windowSize;
+void HrlNeuralAnalysis::calcBinnedCellSpikeCounts(int idx, IndexType windowSize, vector<int> &spikeCounts) {
+	IndexType numBins = (paramsIn_->endTime - paramsIn_->startTime)/windowSize;
 	int numCells = paramsIn_->endIdx - paramsIn_->startIdx + 1;
 
-	int currPosition = 0;
+	IndexType currPosition = 0;
 	int currTime = paramsIn_->startTime;
 	int currCount = 0;
 	double currRate = 0;
@@ -245,7 +245,7 @@ void HrlNeuralAnalysis::calcBinnedCellSpikeCounts(int idx, int windowSize, vecto
 	spikeCounts.reserve(numBins+1);
 
 	for(int i = 0; i<numBins; i++) {
-		for(int j=0; j<windowSize; j++) {
+		for(IndexType j=0; j<windowSize; j++) {
 			if(cellActivity_->at(idx).size() > currPosition) {
 				while(cellActivity_->at(idx).at(currPosition) <= currTime) {
 					++currPosition;
@@ -263,17 +263,17 @@ void HrlNeuralAnalysis::calcBinnedCellSpikeCounts(int idx, int windowSize, vecto
 }
 
 // This is based on: http://www.codeproject.com/Articles/49723/Linear-correlation-and-statistical-functions
-double HrlNeuralAnalysis::getPairwisePearsons(int idxCell1, int idxCell2, int windowSize) {
+double HrlNeuralAnalysis::getPairwisePearsons(int idxCell1, int idxCell2, IndexType windowSize) {
 
 	checkDataStructures();
 
-	int numBins = (paramsIn_->endTime - paramsIn_->startTime)/windowSize;
+	IndexType numBins = (paramsIn_->endTime - paramsIn_->startTime)/windowSize;
 
 	vector<int> spikeCount1;
 	vector<int> spikeCount2;
 
-	calcBinnedCellSpikeCounts(idxCell1,windowSize, spikeCount1);
-	calcBinnedCellSpikeCounts(idxCell2,windowSize, spikeCount2);
+	calcBinnedCellSpikeCounts(idxCell1, windowSize, spikeCount1);
+	calcBinnedCellSpikeCounts(idxCell2, windowSize, spikeCount2);
 
 	// Calculate the means
 	double x1 = accumulate(spikeCount1.begin(), spikeCount1.end(), 0)/ static_cast<double>(spikeCount1.size());
@@ -303,16 +303,16 @@ double HrlNeuralAnalysis::calcPearsons(vector<int> *spikeCount1, vector<int> *sp
 /////////////////////////////////////////////////////////////////////////////////////////
 //                  Burst Analysis Functions
 /////////////////////////////////////////////////////////////////////////////////////////
-vector<int>::iterator HrlNeuralAnalysis::getSubBurstPeriodEnd(vector<int> *spikes, vector<int>::iterator searchStartPoint, double spikeRate) {
+vector<IndexType>::iterator HrlNeuralAnalysis::getSubBurstPeriodEnd(vector<IndexType> *spikes, vector<IndexType>::iterator searchStartPoint, double spikeRate) {
 
-    vector<int>::iterator retVal = spikes->end();
+    vector<IndexType>::iterator retVal = spikes->end();
     bool flag = false;
-    vector<int>::iterator spikeSearchIt = searchStartPoint;
+    vector<IndexType>::iterator spikeSearchIt = searchStartPoint;
 
     while ( (spikeSearchIt != spikes->end() - 1)  && flag == false) {
         double isi = *(spikeSearchIt+1) - *spikeSearchIt;
 
-        if(static_cast<double>(1/(isi/paramsIn_->sampleFreq)) < spikeRate) {
+        if(static_cast<double>(1/(isi/paramsIn_->units)) < spikeRate) {
             retVal = spikeSearchIt+1;
             flag = true;
         } else {
@@ -353,34 +353,34 @@ void HrlNeuralAnalysis::calcBursting(double significance, std::vector<std::vecto
 
     double prob = -log(significance);
 
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_) {
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_) {
 
         std::vector<BurstInfo> cellBurstResults;
 
         // Make sure there are enough spikes
         if(spikes.size() > MIN_BURST_SPIKE_COUNT) {
             // average spike rate = number of spikes / simulation time
-            double spikeRate = static_cast<double>(spikes.size())/static_cast<double>( (paramsIn_->endTime - paramsIn_->startTime) / paramsIn_->sampleFreq);
+            double spikeRate = static_cast<double>(spikes.size())/static_cast<double>( (paramsIn_->endTime - paramsIn_->startTime) / paramsIn_->units);
             // Start the search at the beginning of the spike vector
-            for (vector<int>::iterator spikeSearchStartIt = spikes.begin(); spikeSearchStartIt < (spikes.end() - (MIN_BURST_SPIKE_COUNT -1) ); spikeSearchStartIt++) {
+            for (vector<IndexType>::iterator spikeSearchStartIt = spikes.begin(); spikeSearchStartIt < (spikes.end() - (MIN_BURST_SPIKE_COUNT -1) ); spikeSearchStartIt++) {
                 double isi = *(spikeSearchStartIt + (MIN_BURST_SPIKE_COUNT - 1) ) - *spikeSearchStartIt;
-                double avgIsiRate = static_cast<double>( MIN_BURST_SPIKE_COUNT / (isi / paramsIn_->sampleFreq)  );
-                // If the three consecutive spikes have rate that is over the average rate begin the search for a burst.
+                double avgIsiRate = static_cast<double>( MIN_BURST_SPIKE_COUNT / (isi / paramsIn_->units)  );
+                // If the three consecutive spikes have a rate that is over the average rate, begin the search for a burst.
                 if (avgIsiRate >= spikeRate) {
                     int nSpikes = MIN_BURST_SPIKE_COUNT;
                     // quick search forward for an ISI that is greater than the average rate to constrain the search period.
-                    vector<int>::iterator spikeEndSearchIt = getSubBurstPeriodEnd(&spikes, spikeSearchStartIt+(MIN_BURST_SPIKE_COUNT -1), spikeRate);
+                    vector<IndexType>::iterator spikeEndSearchIt = getSubBurstPeriodEnd(&spikes, spikeSearchStartIt+(MIN_BURST_SPIKE_COUNT -1), spikeRate);
                     // Search through this sub-period for the span with the highest Poisson surprise.
                     BurstInfo newBurst;
                     if(spikeEndSearchIt == spikes.end())
                         spikeEndSearchIt -= 2;
-                    // Search this window of spikes for periods of activity that have a higher poisson surprise value then the probability.
-                    for (vector<int>::iterator burstSearchStartIt = spikeSearchStartIt; burstSearchStartIt < (spikeEndSearchIt - (MIN_BURST_SPIKE_COUNT-1)); burstSearchStartIt++) {
-                        for (vector<int>::iterator burstSearchEndIt = ( burstSearchStartIt + (MIN_BURST_SPIKE_COUNT-1) ); burstSearchEndIt < (spikeEndSearchIt+1); burstSearchEndIt++) {
+                    // Search this window of spikes for periods of activity that have a higher Poisson surprise value then the probability.
+                    for (vector<IndexType>::iterator burstSearchStartIt = spikeSearchStartIt; burstSearchStartIt < (spikeEndSearchIt - (MIN_BURST_SPIKE_COUNT-1)); burstSearchStartIt++) {
+                        for (vector<IndexType>::iterator burstSearchEndIt = ( burstSearchStartIt + (MIN_BURST_SPIKE_COUNT-1) ); burstSearchEndIt < (spikeEndSearchIt+1); burstSearchEndIt++) {
 
                             int nSpikes = distance(burstSearchStartIt,burstSearchEndIt) + 1;
-                            int timeSpan = *burstSearchEndIt - *burstSearchStartIt;
-                            double newSurprise = calcSurprise(timeSpan, nSpikes, spikeRate/paramsIn_->sampleFreq);
+                            IndexType timeSpan = *burstSearchEndIt - *burstSearchStartIt;
+                            double newSurprise = calcSurprise(timeSpan, nSpikes, spikeRate/paramsIn_->units);
 
                             if( (newSurprise > newBurst.surprise) || ((newSurprise == newBurst.surprise) && (nSpikes >newBurst.nSpikes)) ) {
                                 newBurst.start = *burstSearchStartIt;
@@ -443,8 +443,8 @@ void HrlNeuralAnalysis::calcCellRates(vector<int> *cells, vector<double> *rates,
     cells->reserve(paramsIn_->endIdx - paramsIn_->startIdx + 1);
     rates->reserve(paramsIn_->endIdx - paramsIn_->startIdx + 1);
 
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_ ) {
-        rate = static_cast<double>(spikes.size())/(simTime/paramsIn_->sampleFreq);
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_ ) {
+        rate = static_cast<double>(spikes.size())/(simTime/paramsIn_->units);
         if(maxRate < rate) {
             maxRate = rate;
         }
@@ -469,8 +469,8 @@ void HrlNeuralAnalysis::calcRateBins(int numBins, vector<double> *freqs, vector<
     vector<double> rates;
     rates.reserve(paramsIn_->endIdx - paramsIn_->startIdx + 1);
     // Calculate the rates for each cell in the group.
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_ ) {
-        calcRate = static_cast<double>(spikes.size())/(simTime/paramsIn_->sampleFreq);
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_ ) {
+        calcRate = static_cast<double>(spikes.size())/(simTime/paramsIn_->units);
         if(maxRate < calcRate) {
             maxRate = calcRate;
         }
@@ -541,8 +541,8 @@ double HrlNeuralAnalysis::calcMaxRate() {
     double rate;
     double maxRate;
     int count = paramsIn_->startIdx - 1;
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_ ) {
-        rate = static_cast<double>(spikes.size())/(simTime/paramsIn_->sampleFreq);
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_ ) {
+        rate = static_cast<double>(spikes.size())/(simTime/paramsIn_->units);
         if(maxRate < rate) {
             maxRate = rate;
         }
@@ -551,18 +551,18 @@ double HrlNeuralAnalysis::calcMaxRate() {
 }
 
 void HrlNeuralAnalysis::calcWindowRate(double step, double rateWindow, std::vector<double> *rates) {
-    int numBins = static_cast<int>((paramsIn_->endTime - paramsIn_->startTime)/rateWindow);
+	IndexType numBins = static_cast<IndexType>((paramsIn_->endTime - paramsIn_->startTime)/rateWindow);
     int numCells = paramsIn_->endIdx - paramsIn_->startIdx + 1;
     
     int currPosition = 0;
-    int currTime = paramsIn_->startTime;
+    IndexType currTime = paramsIn_->startTime;
     int currCount = 0;
     double currRate = 0;
 
     rates->reserve(numBins+1);
 
-    for(int i = 0; i<numBins; i++) {
-        for(int j=0; j<rateWindow; j++) {
+    for(IndexType i = 0; i<numBins; i++) {
+        for(double j=0; j<rateWindow; j++) {
             if(spikeActivity_->size() > currPosition) {                
                 while(spikeActivity_->at(currPosition).first <= currTime) {
                     ++currPosition;
@@ -574,7 +574,7 @@ void HrlNeuralAnalysis::calcWindowRate(double step, double rateWindow, std::vect
             }
             ++currTime;                        
         }
-        rates->push_back( static_cast<double>(currCount)/( static_cast<double>(numCells)*(rateWindow/paramsIn_->sampleFreq) ) );
+        rates->push_back( static_cast<double>(currCount)/( static_cast<double>(numCells)*(rateWindow/paramsIn_->units) ) );
         currCount = 0;        
     }
 }
@@ -589,25 +589,25 @@ RateInfoPtr HrlNeuralAnalysis::getWindowRate(double step, double rateWindow) {
 void HrlNeuralAnalysis::calcGaussWindowRate(double step, double rateWindow, std::vector<double> *rates) {
 
     // Loop through and calculate the average spike count using a Gaussian weight function.
-    int numBins = static_cast<int>((paramsIn_->endTime - paramsIn_->startTime)/rateWindow);
+	IndexType numBins = static_cast<IndexType>((paramsIn_->endTime - paramsIn_->startTime)/rateWindow);
     int numCells = paramsIn_->endIdx - paramsIn_->startIdx + 1;
     rates->reserve(numBins);
 
-    double sigma = rateWindow/paramsIn_->sampleFreq;
+    double sigma = rateWindow/paramsIn_->units;
     double a = 1/(  sqrt( atan(1)*4*2 )*sigma  );
     double b = 2*sigma*sigma;
     double binStart = 0;
     double binEnd = 0;
     double currRate = 0.0;
     double tau = 0.0;
-    int currPosition;
+    IndexType currPosition;
 
     // precompute the spike counts at each time step.
-    std::vector<int> spikeCounts;
+    std::vector<IndexType> spikeCounts;
     spikeCounts.reserve(paramsIn_->endTime - paramsIn_->startTime + 1);
-    int currSpikeCount;
-    int currCountPosition = 0;
-    for(int i = paramsIn_->startTime; i < paramsIn_->endTime; i++ ) {
+    IndexType currSpikeCount;
+    IndexType currCountPosition = 0;
+    for(IndexType i = paramsIn_->startTime; i < paramsIn_->endTime; i++ ) {
         currSpikeCount = 0;
         if(spikeActivity_->size() > currCountPosition) {
             while(spikeActivity_->at(currCountPosition).first <= i) {
@@ -621,8 +621,8 @@ void HrlNeuralAnalysis::calcGaussWindowRate(double step, double rateWindow, std:
         spikeCounts.push_back(currSpikeCount);
     }
 
-    for(int i = 0; i<numBins; i++) {
-        currPosition = static_cast<int>((i+1)*rateWindow);
+    for(IndexType i = 0; i<numBins; i++) {
+        currPosition = static_cast<IndexType>((i+1)*rateWindow);
         binStart = currPosition-4*rateWindow;
         if(binStart<0)
             binStart=0;
@@ -633,9 +633,9 @@ void HrlNeuralAnalysis::calcGaussWindowRate(double step, double rateWindow, std:
 
         currRate = 0.0;
 
-        for(int j=static_cast<int>(binStart); j<static_cast<int>(binEnd); j++) {
+        for(IndexType j=static_cast<IndexType>(binStart); j<static_cast<IndexType>(binEnd); j++) {
             // (Current Center) - (the location we're looking at) converted to seconds.
-            tau = (static_cast<double>(currPosition - j))/paramsIn_->sampleFreq;
+            tau = (static_cast<double>(currPosition - j))/paramsIn_->units;
             currRate += static_cast<double>(spikeCounts.at(j))*a*exp(-(tau*tau)/b);
         }
         rates->push_back( currRate/static_cast<double>(numCells));
@@ -692,15 +692,15 @@ IsiInfoPtr HrlNeuralAnalysis::getISI() {
     return isiInfo;
 }
 
-void HrlNeuralAnalysis::calcISI(vector< boost::shared_ptr< vector<int> > > *isi) {
+void HrlNeuralAnalysis::calcISI(vector< boost::shared_ptr< vector<IndexType> > > *isi) {
     isi->reserve(paramsIn_->endIdx - paramsIn_->startIdx + 1);
     
     // Construct the inter-spike interval calculations
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_) {
-        vector<int>::reverse_iterator spikeIt;
-        vector<int>::reverse_iterator spikePrevIt = spikes.rbegin();
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_) {
+        vector<IndexType>::reverse_iterator spikeIt;
+        vector<IndexType>::reverse_iterator spikePrevIt = spikes.rbegin();
         
-        boost::shared_ptr< vector<int> > ptrCellVec(new vector<int>);
+        boost::shared_ptr< vector<IndexType> > ptrCellVec(new vector<IndexType>);
         ptrCellVec->reserve(spikes.size() + 1);
         isi->push_back(ptrCellVec);
 
@@ -715,22 +715,22 @@ void HrlNeuralAnalysis::calcISI(vector< boost::shared_ptr< vector<int> > > *isi)
 
 void HrlNeuralAnalysis::calcCOV(vector<int> *cells, vector<double> *COV) {
 
-    vector< boost::shared_ptr< vector<int> > > isi;
+    vector< boost::shared_ptr< vector<IndexType> > > isi;
     int currCell = paramsIn_->startIdx;
-    int prevSpike;
+    IndexType prevSpike;
 
     cells->reserve(paramsIn_->endIdx - paramsIn_->startIdx + 1);
     COV->reserve(paramsIn_->endIdx - paramsIn_->startIdx + 1);
     isi.reserve(paramsIn_->endIdx - paramsIn_->startIdx + 1);
 
     // Construct the inter-spike interval calculations
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_) {
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_) {
         // This is greater than 10 to create 10 ISI values.
         if(spikes.size() > 10) {
 
-            vector<int>::reverse_iterator spikeIt;
-            vector<int>::reverse_iterator spikePrevIt = spikes.rbegin();
-            boost::shared_ptr< vector<int> > ptrCellVec(new vector<int>);
+            vector<IndexType>::reverse_iterator spikeIt;
+            vector<IndexType>::reverse_iterator spikePrevIt = spikes.rbegin();
+            boost::shared_ptr< vector<IndexType> > ptrCellVec(new vector<IndexType>);
             ptrCellVec->reserve(spikes.size() + 1);
             cells->push_back(currCell);
             isi.push_back(ptrCellVec);
@@ -747,7 +747,7 @@ void HrlNeuralAnalysis::calcCOV(vector<int> *cells, vector<double> *COV) {
 
     // Loop through and calculate the COV for each of the cells.
     currCell = -1;
-    BOOST_FOREACH(boost::shared_ptr< vector<int> > cellIsi, isi) {
+    BOOST_FOREACH(boost::shared_ptr< vector<IndexType> > cellIsi, isi) {
         double sum_of_squares = 0;
         double variance = 0;
         double mean = accumulate(cellIsi->begin(), cellIsi->end(), 0)/static_cast<double>(cellIsi->size());
@@ -766,10 +766,10 @@ CovInfoPtr HrlNeuralAnalysis::getCOV() {
     return covInfo;
 }
 
-void HrlNeuralAnalysis::calcSpikeTimes(std::vector<int> *time, std::vector<int> *spikes) {
+void HrlNeuralAnalysis::calcSpikeTimes(std::vector<IndexType> *time, std::vector<int> *spikes) {
     time->reserve(spikeActivity_->size());
     spikes->reserve(spikeActivity_->size());
-    for (vector<std::pair<int,int> >::iterator spikeIt = spikeActivity_->begin(); spikeIt!=spikeActivity_->end(); ++spikeIt) {
+    for (vector<std::pair<IndexType,int> >::iterator spikeIt = spikeActivity_->begin(); spikeIt!=spikeActivity_->end(); ++spikeIt) {
         time->push_back((*spikeIt).first);
         spikes->push_back((*spikeIt).second);
     }
@@ -785,8 +785,8 @@ RasterInfoPtr HrlNeuralAnalysis::getSpikeTimes() {
 void HrlNeuralAnalysis::buildSpikeActFromCellAct() {
     int currCell = paramsIn_->startIdx;
     spikeActivity_->clear();
-    BOOST_FOREACH( vector<int> spikes, *cellActivity_ ) {
-        BOOST_FOREACH( int spikeTime, spikes ) {
+    BOOST_FOREACH( vector<IndexType> spikes, *cellActivity_ ) {
+        BOOST_FOREACH( IndexType spikeTime, spikes ) {
             spikeActivity_->push_back(make_pair(spikeTime,currCell));
         }
         ++currCell;
@@ -819,7 +819,7 @@ void HrlNeuralAnalysis::setParamsIn(NeuronParamsPtr params) {
     paramsIn_ = params;
 }
 
-void HrlNeuralAnalysis::addSpike(int time, int index) {
+void HrlNeuralAnalysis::addSpike(IndexType time, int index) {
      spikeActivity_->push_back( make_pair(time,index));
 }
 

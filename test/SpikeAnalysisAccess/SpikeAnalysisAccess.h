@@ -34,13 +34,13 @@ namespace hrlAnalysis {
 class SpikeAnalysisAccess : public HrlNeuralAnalysis {
 
     public:
-        SpikeAnalysisAccess(int startTimeIn, int endTimeIn, int startIdxIn,int endIdxIn, std::vector<std::string> fileNames,int numCells);
+        SpikeAnalysisAccess(IndexType startTimeIn, IndexType endTimeIn, int startIdxIn,int endIdxIn, std::vector<std::string> fileNames,int numCells);
         virtual ~SpikeAnalysisAccess();
         virtual bool buildDataStructures();
-        void setStartTime(int startTime);
-        void setEndTime(int endTime);
+        void setStartTime(IndexType startTime);
+        void setEndTime(IndexType endTime);
     public:
-        boost::shared_ptr<std::vector< std::vector<int> > > cellActivityAccess_;
+        boost::shared_ptr<std::vector< std::vector<IndexType> > > cellActivityAccess_;
         NeuronParamsPtr paramsInAccess_;
 };
 

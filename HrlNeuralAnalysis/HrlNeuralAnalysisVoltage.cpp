@@ -39,7 +39,7 @@ HrlNeuralAnalysisVoltage::HrlNeuralAnalysisVoltage():
         getSpikes_(0), spikeThreshold_(0)  {}
 
 HrlNeuralAnalysisVoltage::HrlNeuralAnalysisVoltage( 
-                    int startTimeIn, int endTimeIn, int startIdxIn,
+		IndexType startTimeIn, IndexType endTimeIn, int startIdxIn,
                     int endIdxIn, std::vector<std::string> fileNames,
                     int numNeuronsIn, bool getSpikesIn, float spikeThresholdIn):
                     

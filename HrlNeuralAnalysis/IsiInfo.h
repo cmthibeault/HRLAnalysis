@@ -31,13 +31,14 @@
 #define ISIINFO_H_
 
 #include <boost/shared_ptr.hpp>
+#include <defines.h>
 #include <vector>
 
 namespace hrlAnalysis {
 
 struct IsiInfo
 {
-    std::vector< boost::shared_ptr< std::vector<int> > > isi;
+    std::vector< boost::shared_ptr< std::vector<IndexType> > > isi;
 };
 
 typedef boost::shared_ptr<IsiInfo> IsiInfoPtr;

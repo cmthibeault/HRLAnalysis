@@ -43,8 +43,8 @@ class BurstInfo
         bool operator==(const BurstInfo&) const {return false;}
         bool operator!=(const BurstInfo&) const {return true;}
     public:
-        int start;
-        int stop;
+        IndexType start;
+        IndexType stop;
         int nSpikes;
         float surprise;
 };

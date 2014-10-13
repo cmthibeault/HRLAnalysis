@@ -31,7 +31,7 @@
 
 using namespace hrlAnalysis;
 
-CellSynchronyInfo::CellSynchronyInfo(std::vector<int> *spikeTrainIn, int startTime, int endTime) :
+CellSynchronyInfo::CellSynchronyInfo(std::vector<IndexType> *spikeTrainIn, IndexType startTime, IndexType endTime) :
         ptr_t_p1_(spikeTrainIn->begin()), ptr_t_p_(spikeTrainIn->begin()),
         ptr_t_f_(spikeTrainIn->begin()), ptr_t_f1_(spikeTrainIn->begin()+1),
         t_p1_(0), t_p_(0), t_f_(0), t_f1_(0),
@@ -43,7 +43,7 @@ CellSynchronyInfo::~CellSynchronyInfo() {}
 // This has to be called in order.
 void CellSynchronyInfo::incrementSynchronyTiming() {
     T_++;
-    // Deal with the begining of the spike train when T is before any actual spikes occured.
+    // Deal with the beginning of the spike train when T is before any actual spikes occurred.
     if(T_ < *ptr_t_p_ && ptr_t_p_ == spikeTrain_->begin()) {
         t_p1_ = startTime_;
         t_p_ = startTime_;
@@ -96,14 +96,14 @@ void CellSynchronyInfo::incrementSynchronyTiming() {
 
 // This is not ideal.
 void CellSynchronyInfo::calcDeltas(boost::shared_ptr<CellSynchronyInfo> cell2Info) {
-    std::vector<int> dt_p_array;
+    std::vector<IndexType> dt_p_array;
     dt_p_array.push_back(abs(t_p_ - cell2Info->t_p1_));
     dt_p_array.push_back(abs(t_p_ - cell2Info->t_p_));
     dt_p_array.push_back(abs(t_p_ - cell2Info->t_f_));
     dt_p_array.push_back(abs(t_p_ - cell2Info->t_f1_));
     dt_p_ = *std::min_element( dt_p_array.begin(), dt_p_array.end() );
 
-    std::vector<int> dt_f_array;
+    std::vector<IndexType> dt_f_array;
     dt_f_array.push_back(abs(t_f_ - cell2Info->t_p1_));
     dt_f_array.push_back(abs(t_f_ - cell2Info->t_p_));
     dt_f_array.push_back(abs(t_f_ - cell2Info->t_f_));

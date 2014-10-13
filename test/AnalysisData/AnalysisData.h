@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <math.h>
 #include <iterator>
+#include <defines.h>
 
 #define     TOLERANCE   0.01
 
@@ -55,14 +56,19 @@ class AnalysisData {
         bool fillFilterData(std::string fileName);
         bool fillStateData(std::string fileName);
 
-        bool compareRasterData(std::vector<std::pair<int,int> > &data);
+        bool compareRasterData(std::vector<std::pair<IndexType,int> > &data);
+#ifdef INDEX_LONG
         bool compareSpikeBins(std::vector<std::pair<int,int> > &data);
+#endif
         bool compareSpikeRates(std::vector<std::pair<int,double> > &data);
         bool compareWindowRates(std::vector<std::pair<int,double> > &data);
 
         bool compareSpikeBinsAt(std::vector<int> &data, int loc);
 
+        bool compareRasterData(std::vector<IndexType> &data, int dimension);
+#ifdef INDEX_LONG
         bool compareRasterData(std::vector<int> &data, int dimension);
+#endif
         bool compareSpikeBins(std::vector<int> &data, int dimension);
         bool compareSpikeRates(std::vector<int> &data);
         bool compareWindowRates(std::vector<int> &data);
@@ -84,10 +90,16 @@ class AnalysisData {
         bool fillData(std::vector< std::vector<float> > &data, std::string fileName);
         bool fillData(std::vector<double> &data, std::string fileName);
 
+        bool compareData(std::vector<std::pair<IndexType,int> > &data1, std::vector<std::pair<int,int> > &data2);
+#ifdef INDEX_LONG
+        bool compareData(std::vector<std::pair<int,int> > &data1, std::vector<std::pair<IndexType,int> > &data2);
         bool compareData(std::vector<std::pair<int,int> > &data1, std::vector<std::pair<int,int> > &data2);
+#endif
         bool compareData(std::vector<std::pair<int,double> > &data1, std::vector<std::pair<int,double> > &data2);
 
         bool compareData(std::vector<std::pair<int,int> > &data1, std::vector<int> &data2, int dimension);
+        bool compareData(std::vector<std::pair<int,int> > &data1, std::vector<long> &data2, int dimension);
+
         bool compareData(std::vector<std::pair<int,double> > &data1, std::vector<double> &data2);
         bool compareData(std::vector<std::pair<int,double> > &data1, std::vector<int> &data2);
         bool compareData(std::vector<double> &data1, std::vector<double> &data2, double tol);

@@ -51,7 +51,7 @@ class TestAnalysis(unittest.TestCase):
         data = libHrlAnalysisData.AnalysisData()
         data.fillRasterData('../../test/data/CA1/CA1_raster.dat')
 
-        self.assertTrue(data.compareRasterDataDim(spikes.time,1))
+        self.assertTrue(data.compareRasterDataDim_time(spikes.time,1))
         self.assertTrue(data.compareRasterDataDim(spikes.spikes,2))
 
     # Tese the COV analysis
@@ -216,7 +216,7 @@ class TestAnalysis(unittest.TestCase):
         data = libHrlAnalysisData.AnalysisData()
         data.fillRasterData('../../test/data/CA1/CA1_raster.dat')
 
-        self.assertTrue(data.compareRasterDataDim(spikes.time,1))
+        self.assertTrue(data.compareRasterDataDim_time(spikes.time,1))
         self.assertTrue(data.compareRasterDataDim(spikes.spikes,2))
 
        
@@ -237,11 +237,11 @@ class HrlNeuralAnalysisPythonSynchrony(libHrlAnalysis.HrlNeuralAnalysis):
         temp1 = [100,200,300,400,500,600,700,800,900,1000,1100,1200];
         temp2 = [100,210,320,430,540,650,760,870,980,1090,1200];
 
-        self.cellActivity().append(libHrlAnalysis.vector_int())
+        self.cellActivity().append(libHrlAnalysis.vector_time())
         for i in range(len(temp1)):
             self.cellActivity()[0].append(temp1[i])
 
-        self.cellActivity().append(libHrlAnalysis.vector_int())
+        self.cellActivity().append(libHrlAnalysis.vector_time())
         for i in range(len(temp2)):
             self.cellActivity()[1].append(temp2[i])
 

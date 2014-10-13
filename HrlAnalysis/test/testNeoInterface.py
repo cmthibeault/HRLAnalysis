@@ -69,10 +69,10 @@ class HrlNeuralAnalysisNEO(libHrlAnalysis.HrlNeuralAnalysis):
             cellst.t_stop.units = pq.ms
             startTime = min(startTime,int(cellst.t_start))
             endTime = max(endTime,int(cellst.t_stop))
-            self.cellActivity().append(libHrlAnalysis.vector_int())
+            self.cellActivity().append(libHrlAnalysis.vector_time())
             for spike in cellst:
                 self.cellActivity()[currIdx].append(int(spike))
-                self.spikeActivity().append(libHrlAnalysis.int_pair(int(spike),currIdx))
+                self.spikeActivity().append(libHrlAnalysis.pair(spike,currIdx))
                 
             currIdx += 1
         self.sortSpikeActivity()

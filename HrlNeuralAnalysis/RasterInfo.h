@@ -32,12 +32,13 @@
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include <defines.h>
 
 namespace hrlAnalysis {
 
 struct RasterInfo
 {
-        std::vector<int> time;
+        std::vector<IndexType> time;
         std::vector<int> spikes;
 };
 

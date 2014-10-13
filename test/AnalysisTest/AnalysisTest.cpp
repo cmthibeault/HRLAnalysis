@@ -1316,7 +1316,7 @@ void AnalysisTest::testAnalysisIntData() {
     CPPUNIT_ASSERT(data->fillRasterData( string(CA1_FILE_STR_PREFIX) + string("CA1_raster_short.dat") ));    
         
     // Create and Fill our fake array.
-    std::vector<std::pair<int,int> > rasterData;
+    std::vector<std::pair<IndexType,int> > rasterData;
     rasterData.push_back(make_pair(1095,27539));
     rasterData.push_back(make_pair(1104,26797));
     rasterData.push_back(make_pair(1106,27096));

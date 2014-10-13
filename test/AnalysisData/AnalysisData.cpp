@@ -90,7 +90,7 @@ bool AnalysisData::fillVoltageData(std::string fileName) {
         voltageData_[idx].resize(vData.size());
          
       // copy elements
-      for (int time = 0; time < vData.size(); time++)
+      for (IndexType time = 0; time < vData.size(); time++)
         for (int cell = 0; cell < vData[time].size(); cell++)
           voltageData_[cell][time] = vData[time][cell];
 
@@ -128,13 +128,15 @@ bool AnalysisData::compareSpikeBinsAt(std::vector<int> &data, int loc) {
     return retVal;
 }
 
-bool AnalysisData::compareRasterData(std::vector<std::pair<int,int> > &data) {
+bool AnalysisData::compareRasterData(std::vector<std::pair<IndexType,int> > &data) {
     return compareData(rasterData_, data);
 }
 
+#ifdef INDEX_LONG
 bool AnalysisData::compareSpikeBins(std::vector<std::pair<int,int> > &data) {
     return compareData(spikeBins_, data);
 }
+#endif
 
 bool AnalysisData::compareSpikeRates(std::vector<std::pair<int,double> > &data) {
     return compareData(spikeRates_, data);
@@ -144,9 +146,15 @@ bool AnalysisData::compareWindowRates(std::vector<std::pair<int,double> > &data)
     return compareData(windowRates_, data);
 }
 
+bool AnalysisData::compareRasterData(std::vector<IndexType> &data, int dimension) {
+    return compareData(rasterData_, data, dimension);
+}
+
+#ifdef INDEX_LONG
 bool AnalysisData::compareRasterData(std::vector<int> &data, int dimension) {
     return compareData(rasterData_, data, dimension);
 }
+#endif
 
 bool AnalysisData::compareSpikeBins(std::vector<int> &data, int dimension) {
     return compareData(spikeBins_, data, dimension);
@@ -319,6 +327,66 @@ void AnalysisData::printDblPair(pair<int,double> iPair) {
     cout << "\t" << iPair.first << "\t" << iPair.second << std::endl;
 }
 
+bool AnalysisData::compareData(std::vector<std::pair<IndexType,int> > &data1, std::vector<std::pair<int,int> > &data2) {
+    bool retVal = true;
+    int currentLine = 1;
+    std::vector<std::pair<IndexType,int> >::iterator data1It = data1.begin();
+    std::vector<std::pair<int,int> >::iterator data2It = data2.begin();
+
+    // Check the length
+    if(data1.size() != data2.size()) {
+        retVal = false;
+        cout << "\t\tVector sizes do not match!\tdata1: " << data1.size() << "\t" << data2.size() << endl;
+    } else {
+        while(data1It != data1.end() && data2It != data2.end() && retVal ) {
+            // Compare the elements
+            if( (static_cast<IndexType>(data1It->first) != data2It->first) || (data1It->second != data2It->second)) {
+                retVal = false;
+                cout << "\t\tVectors do not match at item " << currentLine << endl;
+                cout << "\t\t\tData1 pair \t" << data1It->first << "\t" << data1It->second << endl;
+                cout << "\t\t\tData2 pair \t" << data2It->first << "\t" << data2It->second << endl;
+            }
+            // Increment the iterators and the current line.
+            ++data1It;
+            ++data2It;
+            ++currentLine;
+        }
+    }
+
+    return retVal;
+
+}
+#ifdef INDEX_LONG
+bool AnalysisData::compareData(std::vector<std::pair<int,int> > &data1, std::vector<std::pair<IndexType,int> > &data2) {
+    bool retVal = true;
+    int currentLine = 1;
+    std::vector<std::pair<int,int> >::iterator data1It = data1.begin();
+    std::vector<std::pair<IndexType,int> >::iterator data2It = data2.begin();
+
+    // Check the length
+    if(data1.size() != data2.size()) {
+        retVal = false;
+        cout << "\t\tVector sizes do not match!\tdata1: " << data1.size() << "\t" << data2.size() << endl;
+    } else {
+        while(data1It != data1.end() && data2It != data2.end() && retVal ) {
+            // Compare the elements
+            if( (data1It->first != static_cast<IndexType>(data2It->first)) || (data1It->second != data2It->second)) {
+                retVal = false;
+                cout << "\t\tVectors do not match at item " << currentLine << endl;
+                cout << "\t\t\tData1 pair \t" << data1It->first << "\t" << data1It->second << endl;
+                cout << "\t\t\tData2 pair \t" << data2It->first << "\t" << data2It->second << endl;
+            }
+            // Increment the iterators and the current line.
+            ++data1It;
+            ++data2It;
+            ++currentLine;
+        }
+    }
+
+    return retVal;
+
+}
+
 bool AnalysisData::compareData(std::vector<std::pair<int,int> > &data1, std::vector<std::pair<int,int> > &data2) {
     bool retVal = true;
     int currentLine = 1;
@@ -348,6 +416,7 @@ bool AnalysisData::compareData(std::vector<std::pair<int,int> > &data1, std::vec
     return retVal;
 
 }
+#endif
 
 bool AnalysisData::compareData(std::vector<std::pair<int,double> > &data1, std::vector<std::pair<int,double> > &data2) {
     bool retVal = true;
@@ -378,6 +447,35 @@ bool AnalysisData::compareData(std::vector<std::pair<int,double> > &data1, std::
     return retVal;
 }
 
+bool AnalysisData::compareData(std::vector<std::pair<int,int> > &data1, std::vector<IndexType> &data2, int dimension) {
+    bool retVal = true;
+    int currentLine = 1;
+    std::vector<std::pair<int,int> >::iterator data1It = data1.begin();
+    std::vector<IndexType>::iterator data2It = data2.begin();
+
+    // Check the length
+    if(data1.size() != data2.size()) {
+        retVal = false;
+        cout << "\t\tVector sizes do not match!\tdata1: " << data1.size() << "\t" << data2.size() << endl;
+    } else {
+        while(data1It != data1.end() && data2It != data2.end() && retVal ) {
+            // Compare the elements
+            if( ((data1It->first != *data2It) && dimension == 1) ||
+                ((data1It->second != static_cast<int>(*data2It)) && dimension == 2) ) {
+                retVal = false;
+                cout << "\t\tVectors do not match at item " << currentLine << endl;
+                cout << "\t\t\tData1 pair \t" << data1It->first << "\t" << data1It->second << endl;
+                cout << "\t\t\tData2 \t" << *data2It << endl;
+            }
+            // Increment the iterators and the current line.
+            ++data1It;
+            ++data2It;
+            ++currentLine;
+        }
+    }
+    return retVal;
+}
+#ifdef INDEX_LONG
 bool AnalysisData::compareData(std::vector<std::pair<int,int> > &data1, std::vector<int> &data2, int dimension) {
     bool retVal = true;
     int currentLine = 1;
@@ -406,6 +504,7 @@ bool AnalysisData::compareData(std::vector<std::pair<int,int> > &data1, std::vec
     }
     return retVal;
 }
+#endif
 
 bool AnalysisData::compareData(std::vector<std::pair<int,double> > &data1, std::vector<double> &data2) {
     bool retVal = true;

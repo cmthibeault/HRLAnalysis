@@ -38,6 +38,9 @@
 using namespace boost::python;
 
 static bool (AnalysisData::*compareRasterDataDim)(std::vector<int> &data, int dimension) = &AnalysisData::compareRasterData;
+#ifdef INDEX_LONG
+static bool (AnalysisData::*compareRasterDataDim_time)(std::vector<IndexType> &data, int dimension) = &AnalysisData::compareRasterData;
+#endif
 static bool (AnalysisData::*compareSpikeBinsDim)(std::vector<int> &data, int dimension) = &AnalysisData::compareSpikeBins;
 static bool (AnalysisData::*compareSpikeRates_int)(std::vector<int> &data) = &AnalysisData::compareSpikeRates;
 static bool (AnalysisData::*compareSpikeRates_double)(std::vector<double> &data) = &AnalysisData::compareSpikeRates;
@@ -54,6 +57,11 @@ BOOST_PYTHON_MODULE(libHrlAnalysisData) {
         .def("fillCOV", &AnalysisData::fillCOV)
         .def("fillVoltageData", &AnalysisData::fillVoltageData)
         .def("compareRasterDataDim", compareRasterDataDim)
+#ifdef INDEX_LONG
+        .def("compareRasterDataDim_time", compareRasterDataDim_time)
+#else
+        .def("compareRasterDataDim_time", compareRasterDataDim)
+#endif
         .def("compareSpikeBinsDim", compareSpikeBinsDim)
         .def("compareSpikeRates_int", compareSpikeRates_int)
         .def("compareSpikeRates_double", compareSpikeRates_double)

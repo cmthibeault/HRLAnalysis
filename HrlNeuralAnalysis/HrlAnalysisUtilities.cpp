@@ -36,14 +36,14 @@ namespace hrlAnalysis {
 
 StateDistancePtr calcStateDistance(PopFilterInfoPtr data1, PopFilterInfoPtr data2) {
 	int numCells = data1->states.size();
-	int timeLength = data1->states.at(0).size();
+	IndexType timeLength = data1->states.at(0).size();
 
 	StateDistancePtr distance(new StateDistance);
 	distance->state.reserve(timeLength);
 
 	if((data1->states.size() == data2->states.size()) &&
 	   (data1->states.at(0).size() == data2->states.at(0).size()) ) {
-		for(int t = 0; t < timeLength; t++) {
+		for(IndexType t = 0; t < timeLength; t++) {
 			// Calculate the sum of squares of the differences at this time.
 			double tempDist = 0;
 			for(int cell = 0; cell < numCells; cell++) {
@@ -59,12 +59,12 @@ StateDistancePtr calcStateDistance(PopFilterInfoPtr data1, PopFilterInfoPtr data
 // Untested.
 StateDistancePtr calcStateDistanceWithin(PopFilterInfoPtr data1) {
 	int numCells = data1->states.size();
-	int timeLength = data1->states.at(0).size();
+	IndexType timeLength = data1->states.at(0).size();
 
 	StateDistancePtr distance(new StateDistance);
 	distance->state.reserve(timeLength);
 
-    for(int t = 0; t < timeLength; t++) {
+    for(IndexType t = 0; t < timeLength; t++) {
         // Calculate the sum of squares of the differences at this time.
         double tempDist = 0;
         for(int cellIdx1 = 0; cellIdx1 < numCells; cellIdx1++) {

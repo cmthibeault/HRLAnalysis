@@ -58,7 +58,7 @@ class HrlNeuralAnalysisHRLSim : public HrlNeuralAnalysis
          * @param endIdx the last index of the neurons to be extracted.
          * @param fileNames the bin files containing the simulations results.
          */
-        HrlNeuralAnalysisHRLSim(int startTimeIn, int endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames);
+        HrlNeuralAnalysisHRLSim(IndexType startTimeIn, IndexType endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames);
         /**
          * Base destructor
          */
@@ -71,8 +71,8 @@ class HrlNeuralAnalysisHRLSim : public HrlNeuralAnalysis
         virtual bool buildDataStructures();
     private:
         uint processFile(std::ifstream &fpIn);
-        void processLine(std::vector<int> &line, uint numSpikes, int time);
-        uint offset_;
+        void processLine(std::vector<int> &line, uint numSpikes, IndexType time);
+        IndexType offset_;
 #if INCLUDE_SERIALIZATION
         friend class boost::serialization::access;
         template <typename Archive>

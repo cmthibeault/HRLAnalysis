@@ -66,7 +66,7 @@ class HrlNeuralAnalysisVoltage: public HrlNeuralAnalysis
          * @param getSpikesIn when true, calculate spikes using a simple thresholding.
          * @param spikeThresholdIn the spike theshold value.
          */
-        HrlNeuralAnalysisVoltage(int startTimeIn, int endTimeIn, int startIdxIn,
+        HrlNeuralAnalysisVoltage(IndexType startTimeIn, IndexType endTimeIn, int startIdxIn,
                                     int endIdxIn, std::vector<std::string> fileNames,
                                     int numNeuronsIn, bool getSpikesIn, float spikeThresholdIn);
         /**
@@ -101,9 +101,9 @@ class HrlNeuralAnalysisVoltage: public HrlNeuralAnalysis
     protected:
         VoltageInfoPtr voltage_;
     public:
-        int numTimes_;          // total number of time slots to consider
+        IndexType numTimes_;          // total number of time slots to consider
         int numCells_;          // total number of cells to consider
-        uint time_;             // keep track of the time steps that have been processed
+        IndexType time_;             // keep track of the time steps that have been processed
         int numNeurons_;        // number of neurons with voltages written to file (needed for reading voltages)
         float spikeThreshold_;  // when detecting spikes, voltage values of this level indicate spikes
         bool getSpikes_;        // whether to extract spikes or not

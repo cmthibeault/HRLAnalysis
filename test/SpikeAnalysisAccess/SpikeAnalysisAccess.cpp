@@ -32,12 +32,12 @@
 using namespace hrlAnalysis;
 using namespace std;
 
-SpikeAnalysisAccess::SpikeAnalysisAccess(   int startTimeIn, int endTimeIn, int startIdxIn,
+SpikeAnalysisAccess::SpikeAnalysisAccess(   IndexType startTimeIn, IndexType endTimeIn, int startIdxIn,
                                             int endIdxIn, std::vector<std::string> fileNames,
                                             int numCells):
 
                                             HrlNeuralAnalysis(startTimeIn,endTimeIn,startIdxIn,endIdxIn,fileNames),
-                                            cellActivityAccess_(new vector< vector<int> >(numCells)) {
+                                            cellActivityAccess_(new vector< vector<IndexType> >(numCells)) {
     cellActivity_ = cellActivityAccess_;
     paramsInAccess_ = paramsIn_;
 }
@@ -48,10 +48,10 @@ bool SpikeAnalysisAccess::buildDataStructures() {
     return false;
 }
 
-void SpikeAnalysisAccess::setStartTime(int startTime) {
+void SpikeAnalysisAccess::setStartTime(IndexType startTime) {
     paramsIn_->startTime = startTime;
 }
 
-void SpikeAnalysisAccess::setEndTime(int endTime) {
+void SpikeAnalysisAccess::setEndTime(IndexType endTime) {
     paramsIn_->endTime = endTime;
 }

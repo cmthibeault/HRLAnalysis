@@ -41,6 +41,7 @@
 #include <numeric>
 #include <math.h>
 #include <algorithm>
+#include <defines.h>
 
 namespace hrlAnalysis {
 
@@ -54,7 +55,7 @@ class CellSynchronyInfo {
          * @param start time.
          * @param end time.
          */
-        CellSynchronyInfo(std::vector<int> *spikeTrainIn, int startTime, int endTime);
+        CellSynchronyInfo(std::vector<IndexType> *spikeTrainIn, IndexType startTime, IndexType endTime);
         virtual ~CellSynchronyInfo();
                 // operators are required to make boost/shared_ptr happy
         bool operator==(const CellSynchronyInfo&) const {return false;}
@@ -64,23 +65,23 @@ class CellSynchronyInfo {
         double getSn();
     public:
         // These are written in
-        std::vector<int>::iterator ptr_t_p1_;
-        std::vector<int>::iterator ptr_t_p_;
-        std::vector<int>::iterator ptr_t_f_;
-        std::vector<int>::iterator ptr_t_f1_;
-        std::vector<int> *spikeTrain_;
-        int t_p1_;
-        int t_p_;
-        int t_f_;
-        int t_f1_;
+        std::vector<IndexType>::iterator ptr_t_p1_;
+        std::vector<IndexType>::iterator ptr_t_p_;
+        std::vector<IndexType>::iterator ptr_t_f_;
+        std::vector<IndexType>::iterator ptr_t_f1_;
+        std::vector<IndexType> *spikeTrain_;
+        IndexType t_p1_;
+        IndexType t_p_;
+        IndexType t_f_;
+        IndexType t_f1_;
         double dt_p_;
         double dt_f_;
         double x_isi_;
         double x_p_;
         double x_f_;
-        int T_;
-        int startTime_;
-        int endTime_;
+        IndexType T_;
+        IndexType startTime_;
+        IndexType endTime_;
 };
 
 struct SynchronyInfo

@@ -46,21 +46,22 @@ namespace serialization {
 namespace hrlAnalysis {
 
 struct NeuronParams {
-    int startTime;
-    int endTime;
+	IndexType startTime;
+	IndexType endTime;
     int startIdx;
     int endIdx;
     double sampleFreq;
+    double units;
     bool isDataCompiled;
     std::vector<std::string> fileNames;
 
     NeuronParams():
         startTime(0), endTime(0), startIdx(0), \
-        endIdx(0), sampleFreq(1000), fileNames(*(new std::vector<std::string>)), isDataCompiled(false) {};
+        endIdx(0), sampleFreq(1000), units(1000), isDataCompiled(false),fileNames(*(new std::vector<std::string>)) {};
 
-    NeuronParams(int startTimeIn, int endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNamesIn):
+    NeuronParams(IndexType startTimeIn, IndexType endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNamesIn):
 		startTime(startTimeIn), endTime(endTimeIn), startIdx(startIdxIn), \
-		endIdx(endIdxIn), sampleFreq(1000), fileNames(fileNamesIn), isDataCompiled(false) {};
+		endIdx(endIdxIn), sampleFreq(1000), units(1000), isDataCompiled(false), fileNames(fileNamesIn) {};
 
 private:
 
@@ -69,7 +70,7 @@ private:
 	template<typename Archive>
 	void serialize(Archive& ar, const unsigned int version) {
 		(void)version;
-		ar & startTime & endTime & startIdx & endIdx & sampleFreq & fileNames & isDataCompiled;
+		ar & startTime & endTime & startIdx & endIdx & sampleFreq & units & isDataCompiled & fileNames;
 	}
 #endif
 

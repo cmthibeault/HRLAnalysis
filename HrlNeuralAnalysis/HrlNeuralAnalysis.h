@@ -79,8 +79,8 @@ namespace serialization {
 
 namespace hrlAnalysis {
 
-typedef boost::shared_ptr<std::vector< std::pair<int,int> > > SpikeActivityPtr;
-typedef boost::shared_ptr<std::vector< std::vector<int> > > CellActivityPtr;
+typedef boost::shared_ptr<std::vector< std::pair<IndexType,int> > > SpikeActivityPtr;
+typedef boost::shared_ptr<std::vector< std::vector<IndexType> > > CellActivityPtr;
 
 class HrlNeuralAnalysis
 {
@@ -95,7 +95,7 @@ class HrlNeuralAnalysis
          * @param endIdxIn the last index of the neurons to be extracted.
          * @param fileNames the bin files containing the simulations results.
          */
-        HrlNeuralAnalysis(int startTimeIn, int endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames);
+        HrlNeuralAnalysis(IndexType startTimeIn, IndexType endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames);
         /**
          * Base destructor
          */
@@ -223,14 +223,14 @@ class HrlNeuralAnalysis
          * @param[in] index of second neuron.
          * @param[in] the size of the time window to count spikes over.
          */
-        double getPairwisePearsons(int idxCell1, int idxCell2, int windowSize);
+        double getPairwisePearsons(int idxCell1, int idxCell2, IndexType windowSize);
         /**
 		 * Calculate the Pearson's Correlation coefficient between all pairs of
 		 * the neuron population.
          *
          * @param[in] the size of the time window to count spikes over.
          */
-        CorrelationInfoPtr getAllPairsPearsons(int windowSize);
+        CorrelationInfoPtr getAllPairsPearsons(IndexType windowSize);
         /**
          * Use the cellActivity structure to construct the spikeActivity structure.
          */
@@ -263,7 +263,7 @@ class HrlNeuralAnalysis
          * @param[in] time the time for which a spike is added.
          * @param[in] time the cell index for which a spike is added.
          */
-        void addSpike(int time, int index);
+        void addSpike(IndexType time, int index);
     protected:
         /**
 		 * Count a cell's spikes along windows of time without overlap over the entire analysis period.
@@ -272,7 +272,7 @@ class HrlNeuralAnalysis
 		 * @param[in]  the size of the window in time to count spikes over
 		 * @param[out] the vector of spikeCounts for each of the bins over the analysis period.
 		 */
-        void calcBinnedCellSpikeCounts(int idx, int windowSize, std::vector<int> &spikeCounts);
+        void calcBinnedCellSpikeCounts(int idx, IndexType windowSize, std::vector<int> &spikeCounts);
         /**
          * Loop through each of the cells identifying periods of bursting using
          * the Poisson Surprise method from Hanes, Thompson, and Schall
@@ -303,7 +303,7 @@ class HrlNeuralAnalysis
          * @param[out] Spike dissimilarity output
          *
          */
-        inline void calcPairSynchronywSpikes(std::vector<int> *spikeTrain1, std::vector<int> *spikeTrain2, std::vector<double> *S);
+        inline void calcPairSynchronywSpikes(std::vector<IndexType> *spikeTrain1, std::vector<IndexType> *spikeTrain2, std::vector<double> *S);
         /**
          * Multivariate Spike dissimilarity using the SPIKE method from:
          *      Kreuz T, Chicharro D, Houghton C, Andrzejak RG, Mormann F: Monitoring spike train synchrony. Submitted (2012).
@@ -361,15 +361,15 @@ class HrlNeuralAnalysis
          * Create separate vectors for spiking information so it can be easily plotted.
          *
          * @param[out] time a pointer the vector that will store the time (ms).
-         * @param[out] spikes a pointer to the vector that will store a neuron index representing a spike ad the cooresponding time.
+         * @param[out] spikes a pointer to the vector that will store a neuron index representing a spike and the cooresponding time.
          */
-        inline void calcSpikeTimes(std::vector<int> *time, std::vector<int> *spikes);
+        inline void calcSpikeTimes(std::vector<IndexType> *time, std::vector<int> *spikes);
         /**
          * Calculate the interspike-interval for each of the cells.
          *
          * @param[inout] isi a pointer to the vector containing the corresponding ISI calculations.
          */
-        inline void calcISI(std::vector< boost::shared_ptr< std::vector<int> > > *isi);
+        inline void calcISI(std::vector< boost::shared_ptr< std::vector<IndexType> > > *isi);
         /**
          * Calculate the coefficient of variation (C_v = stand_dev(isi) / mean(isi)) for cells that had more than 10 spikes in the given interval.
          *
@@ -410,7 +410,7 @@ class HrlNeuralAnalysis
         double emptyTrainSynchVal;
     private:
         double calcMaxRate();
-        std::vector<int>::iterator getSubBurstPeriodEnd(std::vector<int> *spikes, std::vector<int>::iterator searchStartPoint, double spikeRate);
+        std::vector<IndexType>::iterator getSubBurstPeriodEnd(std::vector<IndexType> *spikes, std::vector<IndexType>::iterator searchStartPoint, double spikeRate);
         double calcSynchrony(CellSynchronyInfoPtr cell1Info, CellSynchronyInfoPtr cell2Info);
 
 #if INCLUDE_SERIALIZATION

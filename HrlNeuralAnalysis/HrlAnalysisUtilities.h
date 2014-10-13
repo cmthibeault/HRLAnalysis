@@ -36,6 +36,7 @@
 #include <vector>
 #include <assert.h>
 #include <math.h>
+#include <defines.h>
 
 namespace hrlAnalysis {
 

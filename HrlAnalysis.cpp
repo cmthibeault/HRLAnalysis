@@ -44,16 +44,16 @@
 #include <HrlNetworkAnalysis.h>
 #include <HrlNeuralAnalysisHRLSim.h>
 #include <HrlNeuralAnalysisVoltage.h>
+#include <PyclustSpikeAnalysis.h>
 #include <NeuronParams.h>
 #include <HrlAnalysisUtilities.h>
 #include <defines.h>
-
 
 using namespace boost::python;
 using namespace hrlAnalysis;
 
 struct HrlNeuralAnalysisCallback : HrlNeuralAnalysis, wrapper<HrlNeuralAnalysis> {
-        HrlNeuralAnalysisCallback(PyObject *p, int startTimeIn, int endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames) :
+        HrlNeuralAnalysisCallback(PyObject *p, IndexType startTimeIn, IndexType endTimeIn, int startIdxIn, int endIdxIn, std::vector<std::string> fileNames) :
                                      HrlNeuralAnalysis(startTimeIn,endTimeIn,startIdxIn,endIdxIn,fileNames),self(p) {};
         bool buildDataStructures() { return call_method<bool>(self, "buildDataStructures"); };
     private:
@@ -72,7 +72,7 @@ void translateHrlNeuralAnalysisException(HrlNeuralAnalysisException const &e) {
 BOOST_PYTHON_MODULE(libHrlAnalysis) {
 
     // Add the HrlNeuralAnalysis Class
-    class_<HrlNeuralAnalysis, boost::noncopyable, boost::shared_ptr< HrlNeuralAnalysisCallback > >("HrlNeuralAnalysis", init<int,int,int,int,std::vector<std::string> >())
+    class_<HrlNeuralAnalysis, boost::noncopyable, boost::shared_ptr< HrlNeuralAnalysisCallback > >("HrlNeuralAnalysis", init<IndexType,IndexType,int,int,std::vector<std::string> >())
         .def("dumpSpikeActivity", &HrlNeuralAnalysis::dumpSpikeActivity)
         .def("dumpCellActivity", &HrlNeuralAnalysis::dumpCellActivity)
 #if INCLUDE_SERIALIZATION
@@ -109,13 +109,17 @@ BOOST_PYTHON_MODULE(libHrlAnalysis) {
 	HrlNeuralAnalysisExceptionType = HrlNeuralAnalysisExceptionClass.ptr();
 	register_exception_translator<HrlNeuralAnalysisException>(&translateHrlNeuralAnalysisException);
 
-    class_<HrlNeuralAnalysisHRLSim, bases<HrlNeuralAnalysis> >("HrlNeuralAnalysisHRLSim", init<int,int,int,int,std::vector<std::string> >())
+    class_<HrlNeuralAnalysisHRLSim, bases<HrlNeuralAnalysis> >("HrlNeuralAnalysisHRLSim", init<IndexType,IndexType,int,int,std::vector<std::string> >())
         .def("buildDataStructures", &HrlNeuralAnalysisHRLSim::buildDataStructures)
     ;
 
-    class_<HrlNeuralAnalysisVoltage, bases<HrlNeuralAnalysis> >("HrlNeuralAnalysisVoltage", init<int,int,int,int,std::vector<std::string>,int,bool,float>())
+    class_<HrlNeuralAnalysisVoltage, bases<HrlNeuralAnalysis> >("HrlNeuralAnalysisVoltage", init<IndexType,IndexType,int,int,std::vector<std::string>,int,bool,float>())
         .def("buildDataStructures", &HrlNeuralAnalysisVoltage::buildDataStructures)
         .def("voltages", &HrlNeuralAnalysisVoltage::voltages)
+    ;
+
+    class_<PyclustSpikeAnalysis, bases<HrlNeuralAnalysis> >("PyclustSpikeAnalysis", init<IndexType,IndexType,int,int,std::vector<std::string> >())
+        .def("buildDataStructures", &PyclustSpikeAnalysis::buildDataStructures)
     ;
 
     class_<HrlNetworkAnalysis>("HrlNetworkAnalysis", init<>())
@@ -129,12 +133,12 @@ BOOST_PYTHON_MODULE(libHrlAnalysis) {
         .def("setLogToFile", &HrlNetworkAnalysis::setLogToFile)
     ;
 
-    class_<std::vector< std::vector<int> >, CellActivityPtr > ("CellActivity")
-        .def(vector_indexing_suite< std::vector< std::vector<int> > >())
+    class_<std::vector< std::vector<IndexType> >, CellActivityPtr > ("CellActivity")
+        .def(vector_indexing_suite< std::vector< std::vector<IndexType> > >())
     ;
 
-    class_<std::vector< std::pair<int,int> >, SpikeActivityPtr > ("SpikeActivity")
-        .def(vector_indexing_suite< std::vector< std::pair<int,int> > >())
+    class_<std::vector< std::pair<IndexType,int> >, SpikeActivityPtr > ("SpikeActivity")
+        .def(vector_indexing_suite< std::vector< std::pair<IndexType,int> > >())
     ;
 
     class_<CorrelationInfo, boost::shared_ptr< CorrelationInfo > > ("CorrelationInfo")
@@ -154,12 +158,13 @@ BOOST_PYTHON_MODULE(libHrlAnalysis) {
         .def_readwrite("voltage", &VoltageInfo::voltage)
     ;
 
-    class_<NeuronParams, boost::shared_ptr< NeuronParams > > ("NeuronParams", init<int,int,int,int,std::vector<std::string> >())
+    class_<NeuronParams, boost::shared_ptr< NeuronParams > > ("NeuronParams", init<IndexType,IndexType,int,int,std::vector<std::string> >())
         .def_readwrite("startTime", &NeuronParams::startTime)
         .def_readwrite("endTime", &NeuronParams::endTime)
         .def_readwrite("startIdx", &NeuronParams::startIdx)
         .def_readwrite("endIdx", &NeuronParams::endIdx)
         .def_readwrite("sampleFreq", &NeuronParams::sampleFreq)
+        .def_readwrite("units", &NeuronParams::units)
         .def_readwrite("isDataCompiled", &NeuronParams::isDataCompiled)
         .def_readwrite("fileNames", &NeuronParams::fileNames)
     ;
@@ -228,17 +233,23 @@ BOOST_PYTHON_MODULE(libHrlAnalysis) {
         .def(vector_indexing_suite<std::vector< std::vector<double> > >())
     ;
 
+#ifdef INDEX_LONG
     class_<std::vector<int> >("vector_int")
         .def(vector_indexing_suite<std::vector<int> >())
+    ;
+#endif
+
+    class_<std::vector<IndexType> >("vector_time")
+        .def(vector_indexing_suite<std::vector<IndexType> >())
     ;
 
     class_<std::vector<std::string> >("vector_string")
         .def(vector_indexing_suite<std::vector<std::string> >())
     ;
 
-    class_< std::pair<int,int> >("int_pair", init<int,int>())
-        .def_readwrite( "first", &std::pair< int, int >::first)
-        .def_readwrite( "second", &std::pair< int, int >::second)
+    class_< std::pair<IndexType,int> >("pair", init<IndexType,int>())
+        .def_readwrite( "first", &std::pair< IndexType, int >::first)
+        .def_readwrite( "second", &std::pair< IndexType, int >::second)
     ;
 
     // Utility Functions

@@ -34,7 +34,7 @@ using namespace std;
 
 HrlNeuralAnalysisHRLSim::HrlNeuralAnalysisHRLSim():HrlNeuralAnalysis() {}
 
-HrlNeuralAnalysisHRLSim::HrlNeuralAnalysisHRLSim(int startTimeIn, int endTimeIn, int startIdxIn,
+HrlNeuralAnalysisHRLSim::HrlNeuralAnalysisHRLSim(IndexType startTimeIn, IndexType endTimeIn, int startIdxIn,
                                                  int endIdxIn, std::vector<std::string> fileNames):
                                                  HrlNeuralAnalysis(startTimeIn,endTimeIn,startIdxIn,endIdxIn,fileNames) {}
 
@@ -106,7 +106,7 @@ uint HrlNeuralAnalysisHRLSim::processFile(ifstream &fpIn) {
     return size;
 }
 
-void HrlNeuralAnalysisHRLSim::processLine(vector<int> &line, uint numSpikes, int time) {
+void HrlNeuralAnalysisHRLSim::processLine(vector<int> &line, uint numSpikes, IndexType time) {
     // process the line.  Are we within the time range?
     for(uint j = 0; j<numSpikes; j++) {
         if(line.at(j) <= paramsIn_->endIdx && line.at(j) >= paramsIn_->startIdx  ) {
